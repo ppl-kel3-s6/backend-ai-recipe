@@ -6,6 +6,7 @@ import {
   deletePantryItem,
   scanPantry,
   savePantryItems,
+  updatePantryItem,
 } from "../controllers/pantry.controller.js";
 import upload from "../middlewares/upload.js";
 
@@ -16,5 +17,6 @@ router.get("/", verifyUser, getPantry);
 router.delete("/", verifyUser, deletePantryItem);
 router.post("/scan", verifyUser, upload.single("image"), scanPantry);
 router.post("/save", verifyUser, savePantryItems);
+router.put("/:id", verifyUser, updatePantryItem);
 
 export default router;

@@ -90,3 +90,42 @@ export const savePantryItems = async (req, res) => {
     data,
   });
 };
+
+export const updatePantryItem = async (req, res) => {
+  const userId = req.user.id;
+  const { id } = req.params;
+  const { name, quantity } = req.body;
+
+  // optional validation
+  if (!name && !quantity) {
+    return res.status(400).json({
+      error: "Nothing to update",
+    });
+  }
+
+  const updateData = {};
+  if (name) updateData.name = name;
+  if (quantity) updateData.quantity = quantity;
+
+  const { data, error } = await supabase
+    .from("pantry_items")
+    .update(updateData)
+    .eq("id", id)
+    .eq("user_id", userId)
+    .select();
+
+  if (error) {
+    return res.status(400).json({ error: error.message });
+  }
+
+  if (!data || data.length === 0) {
+    return res.status(404).json({
+      error: "Item not found or not authorized",
+    });
+  }
+
+  res.json({
+    message: "Pantry item updated",
+    data: data[0],
+  });
+};
