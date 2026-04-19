@@ -4,6 +4,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import pantryRoutes from "./routes/pantry.routes.js";
 
 dotenv.config();
 
@@ -13,8 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-
 app.use("/api/user", userRoutes);
+app.use("/api/pantry", pantryRoutes);
 
 app.get("/", (req, res) => {
   res.send("API running...");
