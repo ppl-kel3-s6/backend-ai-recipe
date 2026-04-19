@@ -13,7 +13,6 @@ const router = express.Router();
 router.post("/", verifyUser, addPantryItem);
 router.get("/", verifyUser, getPantry);
 router.delete("/", verifyUser, deletePantryItem);
-router.post("/scan", verifyUser, scanPantry);
 router.post("/scan", verifyUser, upload.single("image"), scanPantry);
 
 export default router;

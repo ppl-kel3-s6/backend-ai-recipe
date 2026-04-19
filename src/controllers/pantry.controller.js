@@ -52,6 +52,12 @@ export const scanPantry = async (req, res) => {
   const userId = req.user.id;
   const file = req.file;
 
+  if (!file) {
+    return res.status(400).json({
+      error: "No image uploaded",
+    });
+  }
+
   // sementara dummy
   const detectedItems = ["telur", "tomat"];
 
