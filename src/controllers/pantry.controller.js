@@ -34,7 +34,7 @@ export const getPantry = async (req, res) => {
 };
 
 export const deletePantryItem = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.query;
   const userId = req.user.id;
 
   const { error } = await supabase
