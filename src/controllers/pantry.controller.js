@@ -49,7 +49,6 @@ export const deletePantryItem = async (req, res) => {
 };
 
 export const scanPantry = async (req, res) => {
-  const userId = req.user.id;
   const file = req.file;
 
   if (!file) {
@@ -61,11 +60,22 @@ export const scanPantry = async (req, res) => {
   // sementara dummy
   const detectedItems = ["telur", "tomat"];
 
-  const insertData = detectedItems.map((item) => ({
+  res.json({
+    message: "Scan success",
+    items: detectedItems,
+    image_url: file.path,
+  });
+};
+
+export const savePantryItems = async (req, res) => {
+  const userId = req.user.id;
+  const { items, image_url } = req.body;
+
+  const insertData = items.map((item) => ({
     user_id: userId,
     name: item,
     quantity: 1,
-    image_url: file.path,
+    image_url,
   }));
 
   const { data, error } = await supabase
@@ -76,7 +86,7 @@ export const scanPantry = async (req, res) => {
   if (error) return res.status(400).json({ error: error.message });
 
   res.json({
-    message: "Scan success",
+    message: "Saved to pantry",
     data,
   });
 };
