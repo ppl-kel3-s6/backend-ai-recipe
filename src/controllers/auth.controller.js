@@ -44,3 +44,31 @@ export const login = async (req, res) => {
     session: data.session,
   });
 };
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: "http://localhost:3000/reset-password",
+  });
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  res.json({
+    message: "Reset password email sent",
+  });
+};
+
+export const updatePassword = async (req, res) => {
+  const { password } = req.body;
+
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+  });
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  res.json({
+    message: "Password updated",
+  });
+};
