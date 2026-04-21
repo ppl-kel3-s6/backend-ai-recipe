@@ -19,10 +19,43 @@ export const generateRecipe = async (req, res) => {
     });
   }
 
-  // Format bahan untuk AI
   const ingredientsList = pantry.map((item) => item.name);
 
-  // Dummy AI dulu (nanti ganti OpenAI/Gemini)
+  // Cari di DB
+  const { data: existingRecipes } = await supabase
+    .from("recipes")
+    .select("*")
+    .limit(10);
+
+  // Cari recipe paling cocok
+  let bestMatch = null;
+  let bestScore = 0;
+
+  for (const recipe of existingRecipes) {
+    const recipeIngredients = recipe.ingredients || [];
+
+    const matchCount = recipeIngredients.filter((ing) =>
+      ingredientsList.includes(ing),
+    ).length;
+
+    const score = matchCount / recipeIngredients.length;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestMatch = recipe;
+    }
+  }
+
+  // Kalau ketemu yang cocok
+  if (bestMatch && bestScore >= 0.6) {
+    return res.json({
+      source: "database",
+      score: bestScore,
+      recipe: bestMatch,
+    });
+  }
+
+  // Ketika tidak ada recipe di DB, maka generate AI (Dummy AI dulu)
   const recipe = {
     title: "Resep dari pantry kamu",
     description: "Resep sederhana berdasarkan bahan yang tersedia",
