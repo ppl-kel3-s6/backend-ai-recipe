@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabase.js";
+import { uploadPantryImage } from "../services/storage.service.js";
 
 export const addPantryItem = async (req, res) => {
   const userId = req.user.id;
@@ -49,6 +50,7 @@ export const deletePantryItem = async (req, res) => {
 };
 
 export const scanPantry = async (req, res) => {
+  const userId = req.user.id;
   const file = req.file;
 
   if (!file) {
@@ -57,14 +59,23 @@ export const scanPantry = async (req, res) => {
     });
   }
 
-  // sementara dummy
-  const detectedItems = ["telur", "tomat"];
+  try {
+    // sementara dummy
+    const detectedItems = ["telur", "tomat"];
 
-  res.json({
-    message: "Scan success",
-    items: detectedItems,
-    image_url: file.path,
-  });
+    const imageUrl = await uploadPantryImage(file, userId);
+
+    res.json({
+      message: "Scan success",
+      items: detectedItems,
+      image_url: imageUrl,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to scan pantry image",
+      detail: error.message,
+    });
+  }
 };
 
 export const savePantryItems = async (req, res) => {
