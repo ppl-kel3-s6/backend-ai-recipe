@@ -14,7 +14,6 @@ const swaggerOptions = {
           process.env.NODE_ENV === "production"
             ? "https://backend-ai-recipe.vercel.app"
             : "http://localhost:3000",
-        description: "Local server",
       },
     ],
     components: {

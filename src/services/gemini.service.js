@@ -155,6 +155,9 @@ Bahan pantry user:
 ${pantryText}
 
 Aturan:
+- Title output HARUS sama persis dengan: ${title}
+- Jangan terjemahkan title.
+- Jangan ubah nama makanan.
 - Gunakan bahan pantry jika relevan.
 - Boleh tambah bahan umum seperti garam, minyak, gula, lada, air.
 - Category harus tetap: ${finalCategory}

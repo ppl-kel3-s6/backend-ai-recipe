@@ -50,7 +50,7 @@ export const generateRecipe = async (req, res) => {
   const { data: existingRecipes, error: findError } = await supabase
     .from("recipes")
     .select("*")
-    .ilike("title", normalizedTitle)
+    .eq("title", normalizedTitle)
     .limit(1);
 
   if (findError) {
@@ -76,35 +76,39 @@ export const generateRecipe = async (req, res) => {
   try {
     let imageUrl = await findMealImageByTitleService(normalizedTitle);
 
-    if (!imageUrl) {
-      imageUrl = null;
-    }
-
     const aiRecipe = await generateRecipeDetail({
       title: normalizedTitle,
       category,
       cuisine,
       pantryItems: pantry || [],
-      image_url: imageUrl,
+      image_url: imageUrl || null,
     });
+
+    const finalRecipe = {
+      ...aiRecipe,
+      title: normalizedTitle,
+      category: category || aiRecipe.category,
+      cuisine: cuisine || aiRecipe.cuisine,
+      image_url: imageUrl || null,
+    };
 
     const { data: savedRecipe, error: saveError } = await supabase
       .from("recipes")
       .insert([
         {
           author: userId,
-          title: aiRecipe.title,
-          description: aiRecipe.description,
-          cuisine: aiRecipe.cuisine,
-          category: aiRecipe.category,
-          ingredients: aiRecipe.ingredients,
-          instructions: aiRecipe.instructions,
-          image_url: aiRecipe.image_url,
-          prep_time: aiRecipe.prep_time,
-          cook_time: aiRecipe.cook_time,
-          servings: aiRecipe.servings,
-          nutrition: aiRecipe.nutrition,
-          tips: aiRecipe.tips,
+          title: finalRecipe.title,
+          description: finalRecipe.description,
+          cuisine: finalRecipe.cuisine,
+          category: finalRecipe.category,
+          ingredients: finalRecipe.ingredients,
+          instructions: finalRecipe.instructions,
+          image_url: finalRecipe.image_url,
+          prep_time: finalRecipe.prep_time,
+          cook_time: finalRecipe.cook_time,
+          servings: finalRecipe.servings,
+          nutrition: finalRecipe.nutrition,
+          tips: finalRecipe.tips,
           is_public: false,
         },
       ])
