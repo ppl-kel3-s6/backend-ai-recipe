@@ -8,6 +8,7 @@ import express from "express";
 import {
   register,
   login,
+  continueWithGoogle,
   forgotPassword,
   updatePassword,
 } from "../controllers/auth.controller.js";
@@ -75,6 +76,27 @@ router.post("/register", register);
  *         description: Login failed
  */
 router.post("/login", login);
+/**
+ * @swagger
+ * /api/auth/google:
+ *   get:
+ *     summary: Continue with Google OAuth for login or register
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Google OAuth URL generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 url:
+ *                   type: string
+ *                   example: https://accounts.google.com/o/oauth2/v2/auth?...
+ *       400:
+ *         description: Failed to generate Google OAuth URL
+ */
+router.get("/google", continueWithGoogle);
 /**
  * @swagger
  * /api/auth/forgot-password:
