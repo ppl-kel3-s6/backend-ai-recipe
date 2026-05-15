@@ -1,88 +1,158 @@
 import { supabase } from "../config/supabase.js";
+import {
+  getMealsByIngredientService,
+  getMealDetailService,
+} from "../services/mealdb.service.js";
+
+const formatMealSuggestion = (meal, sourceIngredient) => ({
+  mealdb_id: meal.idMeal,
+  title: meal.strMeal,
+  thumbnail: meal.strMealThumb,
+  source_ingredient: sourceIngredient,
+});
+
+export const getRecipeSuggestionsFromPantry = async (req, res) => {
+  const userId = req.user.id;
+
+  const { data: pantry, error } = await supabase
+    .from("pantry_items")
+    .select("name")
+    .eq("user_id", userId);
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  if (!pantry || pantry.length === 0) {
+    return res.status(400).json({ error: "Pantry kosong" });
+  }
+
+  try {
+    const suggestionsMap = new Map();
+
+    for (const item of pantry) {
+      const meals = await getMealsByIngredientService(item.name);
+
+      meals.forEach((meal) => {
+        suggestionsMap.set(meal.idMeal, formatMealSuggestion(meal, item.name));
+      });
+    }
+
+    const suggestions = Array.from(suggestionsMap.values()).slice(0, 12);
+
+    res.json({
+      message: "Recipe suggestions generated from pantry",
+      pantry: pantry.map((item) => item.name),
+      suggestions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to get recipe suggestions",
+    });
+  }
+};
 
 export const generateRecipe = async (req, res) => {
   const userId = req.user.id;
+  const { title, category, cuisine, image_url } = req.body;
 
-  // Ambil pantry user
-  const { data: pantry, error: pantryError } = await supabase
-    .from("pantry_items")
-    .select("name, quantity")
-    .eq("user_id", userId);
-
-  if (pantryError) {
-    return res.status(400).json({ error: pantryError.message });
-  }
-
-  if (!pantry || pantry.length === 0) {
+  if (!title) {
     return res.status(400).json({
-      error: "Pantry kosong",
+      error: "Recipe title is required",
     });
   }
 
-  const ingredientsList = pantry.map((item) => item.name);
+  const normalizedTitle = title.trim();
 
-  // Cari di DB
-  const { data: existingRecipes } = await supabase
+  // 1. Cek DB berdasarkan nama makanan
+  const { data: existingRecipes, error: findError } = await supabase
     .from("recipes")
     .select("*")
-    .limit(10);
+    .ilike("title", normalizedTitle)
+    .limit(1);
 
-  // Cari recipe paling cocok
-  let bestMatch = null;
-  let bestScore = 0;
-
-  for (const recipe of existingRecipes) {
-    const recipeIngredients = recipe.ingredients || [];
-
-    const matchCount = recipeIngredients.filter((ing) =>
-      ingredientsList.includes(ing),
-    ).length;
-
-    const score = matchCount / recipeIngredients.length;
-
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatch = recipe;
-    }
+  if (findError) {
+    return res.status(400).json({ error: findError.message });
   }
 
-  // Kalau ketemu yang cocok
-  if (bestMatch && bestScore >= 0.6) {
+  if (existingRecipes && existingRecipes.length > 0) {
     return res.json({
       source: "database",
-      score: bestScore,
-      recipe: bestMatch,
+      recipe: existingRecipes[0],
     });
   }
 
-  // Ketika tidak ada recipe di DB, maka generate AI (Dummy AI dulu)
-  const recipe = {
-    title: "Resep dari pantry kamu",
-    description: "Resep sederhana berdasarkan bahan yang tersedia",
-    ingredients: ingredientsList,
+  // 2. Kalau tidak ada, generate AI
+  // SEMENTARA DUMMY, nanti bagian ini diganti Gemini/OpenAI
+  const aiRecipe = {
+    title: normalizedTitle,
+    description: `${normalizedTitle} adalah resep hasil AI berdasarkan pilihan makanan pengguna.`,
+    cuisine: cuisine || "General",
+    category: category || "Main Course",
+    image_url: image_url || null,
+    ingredients: [
+      {
+        item: "Bahan utama",
+        amount: "secukupnya",
+        category: "Main",
+      },
+      {
+        item: "Bumbu",
+        amount: "secukupnya",
+        category: "Seasoning",
+      },
+    ],
     instructions: [
-      "Panaskan minyak",
-      "Masukkan semua bahan",
-      "Masak hingga matang",
+      {
+        step: 1,
+        title: "Persiapan",
+        instruction: "Siapkan semua bahan yang dibutuhkan.",
+        tip: "Pastikan bahan masih segar.",
+      },
+      {
+        step: 2,
+        title: "Memasak",
+        instruction: "Masak bahan sesuai urutan hingga matang.",
+        tip: "Gunakan api sedang agar tidak gosong.",
+      },
+      {
+        step: 3,
+        title: "Penyajian",
+        instruction: "Sajikan makanan selagi hangat.",
+        tip: "Tambahkan garnish agar lebih menarik.",
+      },
     ],
     prep_time: 10,
-    cook_time: 15,
+    cook_time: 20,
     servings: 2,
+    nutrition: {
+      calories: 350,
+      protein: "15g",
+      carbs: "40g",
+      fat: "12g",
+    },
+    tips: [
+      "Gunakan bahan segar untuk hasil terbaik.",
+      "Sesuaikan rasa dengan selera.",
+    ],
   };
 
-  // Simpan ke DB
+  // 3. Simpan hasil AI ke DB
   const { data: savedRecipe, error: saveError } = await supabase
     .from("recipes")
     .insert([
       {
         author: userId,
-        title: recipe.title,
-        description: recipe.description,
-        ingredients: recipe.ingredients,
-        instructions: recipe.instructions,
-        prep_time: recipe.prep_time,
-        cook_time: recipe.cook_time,
-        servings: recipe.servings,
+        title: aiRecipe.title,
+        description: aiRecipe.description,
+        cuisine: aiRecipe.cuisine,
+        category: aiRecipe.category,
+        ingredients: aiRecipe.ingredients,
+        instructions: aiRecipe.instructions,
+        image_url: aiRecipe.image_url,
+        prep_time: aiRecipe.prep_time,
+        cook_time: aiRecipe.cook_time,
+        servings: aiRecipe.servings,
+        nutrition: aiRecipe.nutrition,
+        tips: aiRecipe.tips,
         is_public: false,
       },
     ])
@@ -93,7 +163,8 @@ export const generateRecipe = async (req, res) => {
   }
 
   res.json({
-    message: "Recipe generated",
+    source: "ai",
+    message: "Recipe generated by AI and saved to database",
     recipe: savedRecipe[0],
   });
 };
