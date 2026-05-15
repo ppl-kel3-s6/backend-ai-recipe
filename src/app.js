@@ -7,6 +7,7 @@ import userRoutes from "./routes/user.routes.js";
 import pantryRoutes from "./routes/pantry.routes.js";
 import recipeRoutes from "./routes/recipe.routes.js";
 import mealdbRoutes from "./routes/mealdb.routes.js";
+import savedRecipeRoutes from "./routes/savedRecipe.routes.js";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/pantry", pantryRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/mealdb", mealdbRoutes);
+app.use("/api/saved-recipes", savedRecipeRoutes);
 
 app.get("/", (req, res) => {
   res.send("API running...");
