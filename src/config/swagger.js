@@ -10,7 +10,10 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
+        url:
+          process.env.NODE_ENV === "production"
+            ? "https://backend-ai-recipe.vercel.app"
+            : "http://localhost:3000",
         description: "Local server",
       },
     ],
@@ -24,7 +27,7 @@ const swaggerOptions = {
       },
     },
   },
-  apis: ["./src/routes/*.js"],
+  apis: ["./src/routes/**/*.js"],
 };
 
 export const swaggerSpec = swaggerJsdoc(swaggerOptions);
