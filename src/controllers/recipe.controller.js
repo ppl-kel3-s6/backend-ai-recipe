@@ -77,7 +77,7 @@ export const generateRecipe = async (req, res) => {
     let imageUrl = await findMealImageByTitleService(normalizedTitle);
 
     if (!imageUrl) {
-      imageUrl = "/images/recipe-placeholder.jpg";
+      imageUrl = null;
     }
 
     const aiRecipe = await generateRecipeDetail({
