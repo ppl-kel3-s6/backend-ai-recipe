@@ -24,10 +24,14 @@ app.use("/api/pantry", pantryRoutes);
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/mealdb", mealdbRoutes);
 app.use("/api/saved-recipes", savedRecipeRoutes);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/", (req, res) => {
   res.send("API running...");
+});
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get("/api-docs.json", (req, res) => {
+  res.json(swaggerSpec);
 });
 
 app.use((err, req, res, next) => {
