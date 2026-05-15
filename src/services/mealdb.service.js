@@ -41,3 +41,13 @@ export const getMealsByIngredientService = async (ingredient) => {
   const response = await axios.get(`${MEALDB_BASE}/filter.php?i=${ingredient}`);
   return response.data.meals || [];
 };
+
+export const findMealImageByTitleService = async (title) => {
+  const meals = await searchMealsService(title);
+
+  if (!meals || meals.length === 0) {
+    return null;
+  }
+
+  return meals[0].strMealThumb || null;
+};
