@@ -29,7 +29,29 @@ app.get("/", (req, res) => {
   res.send("API running...");
 });
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get(["/api-docs", "/api-docs/"], (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>AI Recipe Platform API Docs</title>
+        <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+
+        <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+        <script>
+          SwaggerUIBundle({
+            url: "/api-docs.json",
+            dom_id: "#swagger-ui"
+          });
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 app.get("/api-docs.json", (req, res) => {
   res.json(swaggerSpec);
 });
