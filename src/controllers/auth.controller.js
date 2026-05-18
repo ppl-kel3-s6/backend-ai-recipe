@@ -76,10 +76,10 @@ export const forgotPassword = async (req, res) => {
 
 export const updatePassword = async (req, res) => {
   const { password } = req.body;
-
-  const { data, error } = await supabase.auth.updateUser({
-    password,
-  });
+  const { data, error } = await supabase.auth.admin.updateUserById(
+    req.user.id,
+    { password },
+  );
 
   if (error) return res.status(400).json({ error: error.message });
 
