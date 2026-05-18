@@ -7,6 +7,11 @@ export const register = async (req, res) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      data: {
+        fullname: fullname,
+      },
+    },
   });
 
   if (error) return res.status(400).json({ error: error.message });
@@ -39,9 +44,17 @@ export const login = async (req, res) => {
 
   if (error) return res.status(400).json({ error: error.message });
 
+  // Ambil profile user dari tabel users untuk mendapatkan fullname terbaru
+  const { data: profile } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", data.session.user.id)
+    .single();
+
   res.json({
     message: "Login success",
     session: data.session,
+    profile,
   });
 };
 
@@ -50,6 +63,9 @@ export const continueWithGoogle = async (req, res) => {
     provider: "google",
     options: {
       redirectTo: process.env.FRONTEND_URL,
+      queryParams: {
+        prompt: "select_account",
+      },
     },
   });
 
@@ -63,8 +79,10 @@ export const continueWithGoogle = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
+  const redirectUrl = `${process.env.FRONTEND_URL}/reset-password`;
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: "http://localhost:3000/reset-password",
+    redirectTo: redirectUrl,
   });
 
   if (error) return res.status(400).json({ error: error.message });

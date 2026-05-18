@@ -31,10 +31,9 @@ export const verifyUser = async (req, res, next) => {
 
     // kalau belum ada → insert otomatis
     if (!existingUser) {
-      await supabase.from("users").insert([
+      const { error: insertError } = await supabase.from("users").insert([
         {
           id: user.id,
-          email: user.email,
           fullname:
             user.user_metadata?.full_name || user.user_metadata?.name || "User",
           image_url:
@@ -43,6 +42,9 @@ export const verifyUser = async (req, res, next) => {
             null,
         },
       ]);
+      if (insertError) {
+        console.error("Failed to insert user profile:", insertError);
+      }
     }
 
     req.user = user;
