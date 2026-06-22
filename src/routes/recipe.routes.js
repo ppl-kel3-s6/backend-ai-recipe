@@ -3,6 +3,7 @@ import { verifyUser } from "../middlewares/auth.middleware.js";
 import {
   generateRecipe,
   getRecipeSuggestionsFromPantry,
+  checkRecipeExists
 } from "../controllers/recipe.controller.js";
 
 const router = express.Router();
@@ -51,5 +52,6 @@ router.post("/generate", verifyUser, generateRecipe);
  *         description: Recipe suggestions generated
  */
 router.get("/suggestions", verifyUser, getRecipeSuggestionsFromPantry);
+router.get("/check", verifyUser, checkRecipeExists);
 
 export default router;

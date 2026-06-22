@@ -148,3 +148,35 @@ export const generateRecipe = async (req, res) => {
     });
   }
 };
+
+export const checkRecipeExists = async (req, res) => {
+  const { title } = req.query;
+  
+  if (!title) {
+    return res.status(400).json({ error: "Title is required" });
+  }
+
+  const normalizedTitle = title.trim();
+
+  try {
+    const { data: existingRecipes, error } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("title", normalizedTitle)
+      .limit(1);
+
+    if (error) throw error;
+
+    if (existingRecipes && existingRecipes.length > 0) {
+      return res.json({
+        exists: true,
+        recipe: existingRecipes[0]
+      });
+    }
+
+    return res.json({ exists: false });
+  } catch (err) {
+    console.error("Error checking recipe:", err);
+    res.status(500).json({ error: "Failed to check recipe in database" });
+  }
+};
