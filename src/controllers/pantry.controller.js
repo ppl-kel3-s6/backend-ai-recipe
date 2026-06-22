@@ -362,7 +362,7 @@ export const scanPantry = async (req, res) => {
       const response = await axios.post(`${detectionServiceUrl.replace(/\/$/, "")}/detect`, {
         image_url: imageUrl,
         candidate_labels: Object.keys(ingredientMapping),
-        threshold: 0.12
+        threshold: 0.08
       }, {
         timeout: 20000 // 20s timeout since HF space might need time to fetch image and run inference
       });

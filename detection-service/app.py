@@ -90,7 +90,9 @@ async def detect_objects(payload: DetectionRequest):
     try:
         # 2. Prepare inputs for OWL-ViT
         # OWL-ViT expects candidate_labels inside nested lists: [[ "label1", "label2" ]]
-        texts = [payload.candidate_labels]
+        # Prefixing with "a photo of a " aligns with CLIP's pretraining and boosts confidence scores.
+        formatted_labels = [f"a photo of a {label}" for label in payload.candidate_labels]
+        texts = [formatted_labels]
         
         inputs = processor(text=texts, images=image, return_tensors="pt").to(device)
         
