@@ -1,0 +1,7 @@
+fastapi>=0.95.0
+uvicorn>=0.22.0
+transformers>=4.30.0
+torch
+pillow
+requests
+pydantic>=1.10.0,<2.0.0
