@@ -101,8 +101,8 @@ async def detect_objects(payload: DetectionRequest):
         # 4. Post-process detection results
         # Target sizes is needed to scale boxes back to absolute pixels
         target_sizes = torch.Tensor([image.size[::-1]]).to(device)
-        results = processor.post_process_zero_shot_object_detection(
-            outputs, 
+        results = processor.post_process_object_detection(
+            outputs=outputs, 
             threshold=payload.threshold, 
             target_sizes=target_sizes
         )
