@@ -28,8 +28,13 @@ export const getMealsByAreaService = async (area) => {
 };
 
 export const searchMealsService = async (query) => {
-  const response = await axios.get(`${MEALDB_BASE}/search.php?s=${query}`);
-  return response.data.meals || [];
+  try {
+    const response = await axios.get(`${MEALDB_BASE}/search.php?s=${query}`);
+    return response.data.meals || [];
+  } catch (error) {
+    console.warn(`[MealDB] Gagal mencari gambar untuk "${query}":`, error.message);
+    return [];
+  }
 };
 
 export const getMealDetailService = async (id) => {

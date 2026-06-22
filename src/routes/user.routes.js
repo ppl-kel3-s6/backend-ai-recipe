@@ -24,11 +24,29 @@ const router = express.Router();
  *       401:
  *         description: Unauthorized
  */
-router.get("/me", verifyUser, (req, res) => {
-  res.json({
-    user_id: req.user.id,
-    email: req.user.email,
-  });
+import { supabase } from "../config/supabase.js";
+
+router.get("/me", verifyUser, async (req, res) => {
+  try {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", req.user.id)
+      .single();
+
+    res.json({
+      user_id: req.user.id,
+      email: req.user.email,
+      fullname: profile?.fullname || req.user.user_metadata?.full_name || req.user.user_metadata?.name || "User",
+      image_url: profile?.image_url || req.user.user_metadata?.avatar_url || req.user.user_metadata?.picture || null,
+    });
+  } catch (error) {
+    res.json({
+      user_id: req.user.id,
+      email: req.user.email,
+      fullname: req.user.user_metadata?.full_name || req.user.user_metadata?.name || "User",
+    });
+  }
 });
 
 export default router;

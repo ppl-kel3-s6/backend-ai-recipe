@@ -52,7 +52,11 @@ export const getSavedRecipes = async (req, res) => {
         image_url,
         prep_time,
         cook_time,
-        servings
+        servings,
+        ingredients,
+        instructions,
+        nutrition,
+        tips
       )
     `,
     )
