@@ -28,6 +28,7 @@ export const getRecipeSuggestionsFromPantry = async (req, res) => {
       suggestions: result.suggestions || [],
     });
   } catch (error) {
+    console.error("Error generating recipe suggestions:", error);
     res.status(500).json({
       error: "Failed to generate recipe suggestions",
       detail: error.message,
@@ -124,6 +125,7 @@ export const generateRecipe = async (req, res) => {
       recipe: savedRecipe[0],
     });
   } catch (error) {
+    console.error("Error generating recipe detail:", error);
     res.status(500).json({
       error: "Failed to generate recipe with AI",
       detail: error.message,

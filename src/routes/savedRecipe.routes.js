@@ -10,6 +10,8 @@ import {
   saveRecipe,
   getSavedRecipes,
   unsaveRecipe,
+  saveMealdbRecipe,
+  unsaveMealdbRecipe,
 } from "../controllers/savedRecipe.controller.js";
 
 const router = express.Router();
@@ -78,5 +80,9 @@ router.get("/", verifyUser, getSavedRecipes);
  *         description: Saved recipe not found
  */
 router.delete("/:recipeId", verifyUser, unsaveRecipe);
+
+// Custom routes for saving external/AI recipes directly from DetailResep.jsx
+router.post("/mealdb", verifyUser, saveMealdbRecipe);
+router.delete("/mealdb/:title", verifyUser, unsaveMealdbRecipe);
 
 export default router;

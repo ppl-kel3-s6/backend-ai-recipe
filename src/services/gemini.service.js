@@ -95,6 +95,7 @@ ${allowedCuisines.join(", ")}
 - Jika tidak yakin, gunakan category "Miscellaneous" dan cuisine "American".
 - Jangan sertakan gambar.
 - Output valid JSON saja, tanpa markdown.
+- PENTING: Semua teks (termasuk title makanan, reason, dll) HARUS dalam Bahasa Indonesia.
 
 Format:
 {
@@ -164,6 +165,7 @@ Aturan:
 - Cuisine harus tetap: ${finalCuisine}
 - Output harus valid JSON saja, tanpa markdown.
 - Jangan gunakan substitutions.
+- PENTING: Seluruh instruksi, deskripsi, tips, nama bahan HARUS dalam Bahasa Indonesia.
 
 Format JSON:
 {
